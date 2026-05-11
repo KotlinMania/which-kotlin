@@ -6,6 +6,7 @@
 package io.github.kotlinmania.which
 
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.convert
 import kotlinx.cinterop.toKString
 import kotlin.random.Random
 import kotlin.test.AfterTest
@@ -41,7 +42,7 @@ class RealSysTest {
         val base = getenv("TMPDIR")?.toKString()?.trimEnd('/') ?: "/tmp"
         val unique = "which-test-${Random.nextLong().toULong().toString(16)}"
         root = "$base/$unique"
-        require(mkdir(root, modeBits(read = true, write = true, exec = true)) == 0) {
+        require(mkdir(root, modeBits(read = true, write = true, exec = true).convert()) == 0) {
             "mkdir($root) failed"
         }
     }
@@ -68,7 +69,7 @@ class RealSysTest {
         } else {
             modeBits(read = true, write = true, exec = false)
         }
-        chmod(full, mode)
+        chmod(full, mode.convert())
         tracked.add(full)
         return full
     }
@@ -76,7 +77,7 @@ class RealSysTest {
     private fun ensureDir(path: String) {
         if (path == root || path in tracked) return
         if (!path.startsWith("$root/")) return
-        mkdir(path, modeBits(read = true, write = true, exec = true))
+        mkdir(path, modeBits(read = true, write = true, exec = true).convert())
         tracked.add(path)
     }
 

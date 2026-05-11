@@ -16,11 +16,13 @@ class RealSysTest {
 
     @BeforeTest
     fun setup() {
+        if (!runsInNode()) return
         root = mkTempRoot()
     }
 
     @AfterTest
     fun teardown() {
+        if (!runsInNode()) return
         rmRecursive(root)
     }
 
@@ -38,6 +40,7 @@ class RealSysTest {
 
     @Test
     fun findsBinaryByNameInPath() {
+        if (!runsInNode()) return
         val binA = "$root/a"
         val binB = "$root/b"
         writeExecutable(binA, "rustc")
@@ -52,6 +55,7 @@ class RealSysTest {
 
     @Test
     fun skipsNonExecutableMatches() {
+        if (!runsInNode()) return
         val dir = "$root/d"
         writeExecutable(dir, "foo", executable = false)
         val good = "$root/e"
@@ -64,6 +68,7 @@ class RealSysTest {
 
     @Test
     fun returnsErrorWhenNoPathsAndNoSeparator() {
+        if (!runsInNode()) return
         val sys = RealSys()
         val result = Finder(sys).find("foo", null, root, Noop)
         assertTrue(result.isFailure)
@@ -72,6 +77,7 @@ class RealSysTest {
 
     @Test
     fun resolvesRelativeNameWithSeparatorAgainstCwd() {
+        if (!runsInNode()) return
         val sub = "$root/work"
         writeExecutable(sub, "tool")
         val sys = RealSys()
@@ -81,6 +87,7 @@ class RealSysTest {
 
     @Test
     fun findRegexMatchesFilenames() {
+        if (!runsInNode()) return
         val dir = "$root/r"
         writeExecutable(dir, "python2")
         writeExecutable(dir, "python3")
@@ -91,6 +98,9 @@ class RealSysTest {
         assertEquals(listOf("$dir/python2", "$dir/python3"), all)
     }
 }
+
+private fun runsInNode(): Boolean =
+    js("typeof require !== 'undefined' && typeof process !== 'undefined'").unsafeCast<Boolean>()
 
 private fun mkTempRoot(): String {
     val os: dynamic = js("require('os')")
