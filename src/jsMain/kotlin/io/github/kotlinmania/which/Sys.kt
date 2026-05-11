@@ -71,9 +71,21 @@ actual class RealSys actual constructor() : Sys {
     }.recover { false }
 }
 
-private fun nodeFs(): dynamic = js("require('fs')")
+// Webpack's static analyzer would otherwise see literal `require('fs')` / `require('os')` and
+// pull those modules into the browser bundle, where they're unresolvable — jsBrowserTest fails
+// with `Module not found: Error: Can't resolve 'fs'`. Routing through `eval('require')` makes
+// the require lookup opaque to webpack's static analyzer (it doesn't trace eval string contents)
+// AND preserves Node's lexical scoping so the CommonJS-injected `require` is still visible to
+// the eval expression. `new Function('return require')()` would NOT work here: the Function
+// constructor runs its body in GLOBAL scope where Node's module-local `require` is invisible,
+// and `typeof require` would evaluate to 'undefined', breaking every runtime fs call.
+private fun nodeFs(): dynamic = js(
+    "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs') : null; } catch (e) { return null; } })()"
+)
 
-private fun nodeOs(): dynamic = js("require('os')")
+private fun nodeOs(): dynamic = js(
+    "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('os') : null; } catch (e) { return null; } })()"
+)
 
 private fun nodeProcess(): dynamic = js("process")
 
