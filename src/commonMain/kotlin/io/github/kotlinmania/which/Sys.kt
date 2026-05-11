@@ -81,6 +81,21 @@ interface Sys {
     fun isValidExecutable(path: String): kotlin.Result<Boolean>
 }
 
+/**
+ * Default platform-backed implementation of [Sys]. Reads the live environment,
+ * the host filesystem, and the host's executable-check syscall. Each KMP target
+ * supplies its own actual:
+ *  - Native (linuxX64, macosArm64, mingwX64, iosArm64, iosSimulatorArm64)
+ *    uses `platform.posix` for `getcwd`, `getenv`, `stat`, `lstat`, `opendir`,
+ *    `access(X_OK)`, and detects the host via `kotlin.native.Platform.osFamily`.
+ *  - JS / Wasm-JS use Node.js `fs`, `os`, `process` via external bindings.
+ *  - Android uses `java.nio.file` plus `java.lang.System` for env vars.
+ *
+ * In environments without a filesystem (browser JS / Wasm-JS) the host-touching
+ * methods return failures and callers are expected to plug in a custom [Sys].
+ */
+expect class RealSys() : Sys
+
 internal fun parsePathExt(pathext: String?): List<String> {
     // Sample %PATHEXT%: .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
     // The result is then [".COM", ".EXE", ".BAT", …].
