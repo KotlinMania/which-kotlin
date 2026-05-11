@@ -24,4 +24,52 @@ class Path internal constructor(internal val inner: String) {
     override fun hashCode(): Int = inner.hashCode()
 
     override fun toString(): String = inner
+
+    companion object {
+        /**
+         * Returns the path of an executable binary by name.
+         *
+         * This calls [which] and maps the result into a [Path].
+         */
+        fun new(binaryName: String): Result<Path> =
+            which(binaryName).map { Path(it) }
+
+        /**
+         * Returns the paths of all executable binaries by a name.
+         *
+         * This calls [whichAll] and maps the results into [Path]s.
+         */
+        fun all(binaryName: String): Result<Iterator<Path>> =
+            whichAll(binaryName).map { iter ->
+                object : Iterator<Path> {
+                    override fun hasNext(): Boolean = iter.hasNext()
+                    override fun next(): Path = Path(iter.next())
+                }
+            }
+
+        /**
+         * Returns the path of an executable binary by name in the path list
+         * [paths] and using the current working directory [cwd] to resolve
+         * relative paths.
+         *
+         * This calls [whichIn] and maps the result into a [Path].
+         */
+        fun newIn(binaryName: String, paths: String?, cwd: String): Result<Path> =
+            whichIn(binaryName, paths, cwd).map { Path(it) }
+
+        /**
+         * Returns all paths of an executable binary by name in the path list
+         * [paths] and using the current working directory [cwd] to resolve
+         * relative paths.
+         *
+         * This calls [whichInAll] and maps the results into [Path]s.
+         */
+        fun allIn(binaryName: String, paths: String?, cwd: String): Result<Iterator<Path>> =
+            whichInAll(binaryName, paths, cwd).map { iter ->
+                object : Iterator<Path> {
+                    override fun hasNext(): Boolean = iter.hasNext()
+                    override fun next(): Path = Path(iter.next())
+                }
+            }
+    }
 }
