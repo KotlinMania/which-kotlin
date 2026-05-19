@@ -140,7 +140,7 @@ kotlin {
         }
         val wasmWasiMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.8.2")
+                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.9.0")
             }
         }
     }
