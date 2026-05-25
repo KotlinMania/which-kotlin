@@ -7,25 +7,25 @@ import io.github.kotlinmania.io.files.SystemFileSystem
 
 actual class RealSys actual constructor() : Sys {
 
-    override fun isWindows(): Boolean = false
+    actual override fun isWindows(): Boolean = false
 
-    override fun currentDir(): Result<String> =
+    actual override fun currentDir(): Result<String> =
         runCatching { SystemFileSystem.resolve(Path(".")).toString() }
             .recoverCatching { e -> throw ioError("currentDir", e) }
 
-    override fun homeDir(): String? =
+    actual override fun homeDir(): String? =
         WasiPreview1.getenv("HOME")?.takeIf { it.isNotEmpty() }
 
-    override fun envSplitPaths(paths: String): List<String> =
+    actual override fun envSplitPaths(paths: String): List<String> =
         paths.split(':').filter { it.isNotEmpty() }
 
-    override fun envPath(): String? =
+    actual override fun envPath(): String? =
         WasiPreview1.getenv("PATH")?.takeIf { it.isNotEmpty() }
 
-    override fun envPathExt(): String? =
+    actual override fun envPathExt(): String? =
         WasiPreview1.getenv("PATHEXT")?.takeIf { it.isNotEmpty() }
 
-    override fun metadata(path: String): Result<SysMetadata> =
+    actual override fun metadata(path: String): Result<SysMetadata> =
         runCatching {
             val metadata = SystemFileSystem.metadataOrNull(Path(path))
                 ?: throw IoError("metadata($path): no such file or directory")
@@ -34,10 +34,10 @@ actual class RealSys actual constructor() : Sys {
             throw ioError("metadata($path)", e)
         }
 
-    override fun symlinkMetadata(path: String): Result<SysMetadata> =
+    actual override fun symlinkMetadata(path: String): Result<SysMetadata> =
         metadata(path)
 
-    override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> =
+    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> =
         runCatching {
             SystemFileSystem.list(Path(path)).map { child ->
                 Result.success<SysReadDirEntry>(WasmWasiDirEntry(child))
@@ -46,7 +46,7 @@ actual class RealSys actual constructor() : Sys {
             throw ioError("readDir($path)", e)
         }
 
-    override fun isValidExecutable(path: String): Result<Boolean> =
+    actual override fun isValidExecutable(path: String): Result<Boolean> =
         Result.failure(unavailable("isValidExecutable($path)"))
 
     private fun unavailable(operation: String): IoError =

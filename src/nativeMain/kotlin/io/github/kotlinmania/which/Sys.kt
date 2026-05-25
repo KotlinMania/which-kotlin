@@ -32,10 +32,10 @@ import platform.posix.strerror
 @HiddenFromObjC
 actual class RealSys actual constructor() : Sys {
 
-    override fun isWindows(): Boolean =
+    actual override fun isWindows(): Boolean =
         kotlin.native.Platform.osFamily == kotlin.native.OsFamily.WINDOWS
 
-    override fun currentDir(): Result<String> = memScoped {
+    actual override fun currentDir(): Result<String> = memScoped {
         val buf = allocArray<ByteVar>(PATH_MAX_BYTES)
         val r = getcwd(buf, PATH_MAX_BYTES.convert())
         if (r == null) {
@@ -45,23 +45,23 @@ actual class RealSys actual constructor() : Sys {
         }
     }
 
-    override fun homeDir(): String? {
+    actual override fun homeDir(): String? {
         val key = if (isWindows()) "USERPROFILE" else "HOME"
         return getenv(key)?.toKString()?.takeIf { it.isNotEmpty() }
     }
 
-    override fun envSplitPaths(paths: String): List<String> {
+    actual override fun envSplitPaths(paths: String): List<String> {
         val sep = if (isWindows()) ';' else ':'
         return paths.split(sep).filter { it.isNotEmpty() }
     }
 
-    override fun envPath(): String? =
+    actual override fun envPath(): String? =
         getenv("PATH")?.toKString()?.takeIf { it.isNotEmpty() }
 
-    override fun envPathExt(): String? =
+    actual override fun envPathExt(): String? =
         getenv("PATHEXT")?.toKString()?.takeIf { it.isNotEmpty() }
 
-    override fun metadata(path: String): Result<SysMetadata> = memScoped {
+    actual override fun metadata(path: String): Result<SysMetadata> = memScoped {
         val sb = alloc<stat>()
         if (stat(path, sb.ptr) != 0) {
             Result.failure(lastIoError("stat($path)"))
@@ -71,7 +71,7 @@ actual class RealSys actual constructor() : Sys {
         }
     }
 
-    override fun symlinkMetadata(path: String): Result<SysMetadata> = memScoped {
+    actual override fun symlinkMetadata(path: String): Result<SysMetadata> = memScoped {
         val sb = alloc<stat>()
         val rc = posixLstat(path, sb.ptr)
         if (rc != 0) {
@@ -87,7 +87,7 @@ actual class RealSys actual constructor() : Sys {
         }
     }
 
-    override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
+    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
         val dir = opendir(path)
             ?: return Result.failure(lastIoError("opendir($path)"))
         val entries = mutableListOf<Result<SysReadDirEntry>>()
@@ -106,7 +106,7 @@ actual class RealSys actual constructor() : Sys {
         return Result.success(entries.iterator())
     }
 
-    override fun isValidExecutable(path: String): Result<Boolean> {
+    actual override fun isValidExecutable(path: String): Result<Boolean> {
         val flag = if (isWindows()) 0 else X_OK
         return Result.success(access(path, flag) == 0)
     }
