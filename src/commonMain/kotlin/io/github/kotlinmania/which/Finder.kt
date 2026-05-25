@@ -1,10 +1,15 @@
 // port-lint: source src/finder.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
+
+import kotlin.native.HiddenFromObjC
 
 private fun String.hasSeparator(): Boolean = pathComponentCount(this) > 1
 
 private fun String.toAbsolute(cwd: String): String = pathToAbsolute(this, cwd)
 
+@HiddenFromObjC
 class Finder(private val sys: Sys) {
 
     fun find(

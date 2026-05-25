@@ -1,7 +1,12 @@
 // port-lint: source src/lib.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
 
+import kotlin.native.HiddenFromObjC
+
 /** A wrapper containing all functionality in this crate. */
+@HiddenFromObjC
 class WhichConfig(internal val sys: Sys) {
     internal var cwd: CwdOption = CwdOption.Unspecified
     internal var customPathList: String? = null

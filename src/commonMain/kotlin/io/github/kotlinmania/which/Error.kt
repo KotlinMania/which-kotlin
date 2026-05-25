@@ -1,5 +1,9 @@
 // port-lint: source src/error.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Result type used throughout this crate. Wraps a value of type [T] on success
@@ -8,6 +12,7 @@ package io.github.kotlinmania.which
 typealias Result<T> = kotlin.Result<T>
 
 /** Reasons a [which] lookup can fail. */
+@HiddenFromObjC
 sealed class Error(message: String) : RuntimeException(message) {
     /** An executable binary with that name was not found. */
     data object CannotFindBinaryPath : Error("cannot find binary path")
@@ -27,6 +32,7 @@ sealed class Error(message: String) : RuntimeException(message) {
  *
  * This type is not exhaustive: new variants may be added in future versions.
  */
+@HiddenFromObjC
 sealed class NonFatalError {
     /** The underlying I/O operation failed. */
     data class Io(val cause: IoError) : NonFatalError()
@@ -41,4 +47,5 @@ sealed class NonFatalError {
  * optional platform-level cause so the [NonFatalError.Io] variant can travel
  * through common code without depending on any particular I/O framework.
  */
+@HiddenFromObjC
 open class IoError(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

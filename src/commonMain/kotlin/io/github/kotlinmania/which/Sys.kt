@@ -1,5 +1,9 @@
 // port-lint: source src/sys.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
+
+import kotlin.native.HiddenFromObjC
 
 /** A directory entry surfaced by [Sys.readDir]. */
 interface SysReadDirEntry {
@@ -40,6 +44,7 @@ interface Sys {
     fun isWindows(): Boolean
 
     /** Gets the current working directory. */
+    @HiddenFromObjC
     fun currentDir(): kotlin.Result<String>
 
     /** Gets the home directory of the current user. */
@@ -69,15 +74,19 @@ interface Sys {
     fun envWindowsPathExt(): List<String> = parsePathExt(envPathExt())
 
     /** Gets the metadata of the provided path, following symlinks. */
+    @HiddenFromObjC
     fun metadata(path: String): kotlin.Result<SysMetadata>
 
     /** Gets the metadata of the provided path, not following symlinks. */
+    @HiddenFromObjC
     fun symlinkMetadata(path: String): kotlin.Result<SysMetadata>
 
     /** Reads the directory entries of the provided path. */
+    @HiddenFromObjC
     fun readDir(path: String): kotlin.Result<Iterator<kotlin.Result<SysReadDirEntry>>>
 
     /** Checks if the provided path is a valid executable. */
+    @HiddenFromObjC
     fun isValidExecutable(path: String): kotlin.Result<Boolean>
 }
 

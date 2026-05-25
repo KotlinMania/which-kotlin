@@ -28,7 +28,7 @@ plugins {
 }
 
 group = "io.github.kotlinmania"
-version = "0.1.0"
+version = "0.1.1"
 
 val androidCommandLineToolsRevision = "14742923"
 val projectCompileSdk = "34"
@@ -292,7 +292,7 @@ kotlin {
         }
         val wasmWasiMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.9.0")
+                implementation("io.github.kotlinmania:km-io:0.1.5")
             }
         }
     }
@@ -477,22 +477,63 @@ tasks.named("build") {
     dependsOn(fullTargetBuildTasks)
 }
 
+val swiftExportOutputDir = layout.buildDirectory.dir("swift-test").get().asFile
+val hostPortableTestTaskNames = listOf(
+    "macosArm64Test",
+    "jvmTest",
+    "jsNodeTest",
+    "wasmJsNodeTest",
+    "compileAndroidMain",
+    "assembleUnitTest",
+)
+val wasmWasiTestTask = tasks.named("wasmWasiNodeTest")
+
+val buildSwiftExportPackage = tasks.register<Exec>("buildSwiftExportPackage") {
+    group = "verification"
+    description = "Builds the Swift Export SPM package with the same environment used by CI."
+    mustRunAfter(hostPortableTestTaskNames.mapNotNull { taskName -> tasks.findByName(taskName) })
+    mustRunAfter(wasmWasiTestTask)
+    workingDir = layout.projectDirectory.asFile
+    commandLine(
+        layout.projectDirectory.file(if (isWindowsHost) "gradlew.bat" else "gradlew").asFile.absolutePath,
+        "embedSwiftExportForXcode",
+        "--no-daemon",
+        "--console=plain",
+        "--no-configuration-cache",
+        "--no-parallel",
+        "--max-workers=1",
+        "-Pkotlin.compiler.execution.strategy=in-process",
+    )
+    environment("BUILT_PRODUCTS_DIR", swiftExportOutputDir.absolutePath)
+    environment("TARGET_BUILD_DIR", swiftExportOutputDir.absolutePath)
+    environment("SDK_NAME", "macosx")
+    environment("CONFIGURATION", "Debug")
+    environment("ARCHS", "arm64")
+    environment("FRAMEWORKS_FOLDER_PATH", "Frameworks")
+    environment("MACOSX_DEPLOYMENT_TARGET", "14.0")
+    environment("DEPLOYMENT_TARGET_SETTING_NAME", "MACOSX_DEPLOYMENT_TARGET")
+}
+
+val swiftExportTest = tasks.register<Exec>("swiftExportTest") {
+    group = "verification"
+    description = "Runs swift test against the Kotlin-generated Swift Export package."
+    dependsOn(buildSwiftExportPackage)
+    workingDir = layout.projectDirectory.dir("swift-test-harness").asFile
+    commandLine("swift", "test")
+}
+
 tasks.register("test") {
     group = "verification"
     description =
-        "Runs the host-portable test suite (macOS + JS + WasmJS + Android unit). " +
+        "Runs the host-portable test suite plus the Swift Export smoke test. " +
         "Non-host native targets (mingwX64, linuxX64) only run on their own host."
 
-    val defaultTestTasks = listOf(
-        "macosArm64Test",
-        "jvmTest",
-        "jsNodeTest",
-        "wasmJsNodeTest",
-        "compileAndroidMain",
-        "assembleUnitTest",
-    )
+    dependsOn(hostPortableTestTaskNames.mapNotNull { taskName -> tasks.findByName(taskName) })
+    dependsOn(swiftExportTest)
+}
 
-    dependsOn(defaultTestTasks.mapNotNull { taskName -> tasks.findByName(taskName) })
+tasks.named("check") {
+    dependsOn(swiftExportTest)
 }
 
 // The generated Wasm-WASI Node test runner cannot see the filesystem unless
