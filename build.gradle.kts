@@ -295,6 +295,19 @@ kotlin {
                 implementation("io.github.kotlinmania:km-io:0.1.5")
             }
         }
+
+        val nativeMain by getting
+        val androidNativeMain by getting
+        val linuxMain by getting
+        val mingwMain by getting
+
+        val nonAppleNativeMain by creating {
+            dependsOn(nativeMain)
+        }
+
+        androidNativeMain.dependsOn(nonAppleNativeMain)
+        linuxMain.dependsOn(nonAppleNativeMain)
+        mingwMain.dependsOn(nonAppleNativeMain)
     }
     jvmToolchain(21)
 }
