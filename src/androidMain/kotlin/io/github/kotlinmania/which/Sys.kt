@@ -5,9 +5,9 @@ import java.io.File
 
 actual class RealSys actual constructor() : Sys {
 
-    override fun isWindows(): Boolean = File.separatorChar == '\\'
+    actual override fun isWindows(): Boolean = File.separatorChar == '\\'
 
-    override fun currentDir(): Result<String> {
+    actual override fun currentDir(): Result<String> {
         val dir = System.getProperty("user.dir")
         return if (dir.isNullOrEmpty()) {
             Result.failure(IoError("user.dir is not set"))
@@ -16,22 +16,22 @@ actual class RealSys actual constructor() : Sys {
         }
     }
 
-    override fun homeDir(): String? {
+    actual override fun homeDir(): String? {
         val key = if (isWindows()) "USERPROFILE" else "HOME"
         return System.getenv(key)?.takeIf { it.isNotEmpty() }
             ?: System.getProperty("user.home")?.takeIf { it.isNotEmpty() }
     }
 
-    override fun envSplitPaths(paths: String): List<String> {
+    actual override fun envSplitPaths(paths: String): List<String> {
         val sep = if (isWindows()) ';' else ':'
         return paths.split(sep).filter { it.isNotEmpty() }
     }
 
-    override fun envPath(): String? = System.getenv("PATH")?.takeIf { it.isNotEmpty() }
+    actual override fun envPath(): String? = System.getenv("PATH")?.takeIf { it.isNotEmpty() }
 
-    override fun envPathExt(): String? = System.getenv("PATHEXT")?.takeIf { it.isNotEmpty() }
+    actual override fun envPathExt(): String? = System.getenv("PATHEXT")?.takeIf { it.isNotEmpty() }
 
-    override fun metadata(path: String): Result<SysMetadata> {
+    actual override fun metadata(path: String): Result<SysMetadata> {
         val f = File(path)
         return if (f.exists()) {
             Result.success(AndroidMetadata(isRegular = f.isFile, isSymlink = false))
@@ -40,7 +40,7 @@ actual class RealSys actual constructor() : Sys {
         }
     }
 
-    override fun symlinkMetadata(path: String): Result<SysMetadata> {
+    actual override fun symlinkMetadata(path: String): Result<SysMetadata> {
         val f = File(path)
         if (!f.exists() && !isLink(f)) {
             return Result.failure(IoError("lstat($path): file not found"))
@@ -50,7 +50,7 @@ actual class RealSys actual constructor() : Sys {
         )
     }
 
-    override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
+    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
         val dir = File(path)
         val children = dir.listFiles()
             ?: return Result.failure(IoError("readDir($path): not a directory"))
@@ -60,7 +60,7 @@ actual class RealSys actual constructor() : Sys {
         return Result.success(entries.iterator())
     }
 
-    override fun isValidExecutable(path: String): Result<Boolean> {
+    actual override fun isValidExecutable(path: String): Result<Boolean> {
         val f = File(path)
         return Result.success(f.exists() && f.canExecute())
     }

@@ -34,6 +34,7 @@ interface SysMetadata {
  * implementation of [Sys] that mocks out the calls that would normally hit the
  * operating system, and passing it to `WhichConfig.newWithSys`.
  */
+@HiddenFromObjC
 interface Sys {
     /**
      * Check if the current platform is Windows.
@@ -44,7 +45,6 @@ interface Sys {
     fun isWindows(): Boolean
 
     /** Gets the current working directory. */
-    @HiddenFromObjC
     fun currentDir(): kotlin.Result<String>
 
     /** Gets the home directory of the current user. */
@@ -74,19 +74,15 @@ interface Sys {
     fun envWindowsPathExt(): List<String> = parsePathExt(envPathExt())
 
     /** Gets the metadata of the provided path, following symlinks. */
-    @HiddenFromObjC
     fun metadata(path: String): kotlin.Result<SysMetadata>
 
     /** Gets the metadata of the provided path, not following symlinks. */
-    @HiddenFromObjC
     fun symlinkMetadata(path: String): kotlin.Result<SysMetadata>
 
     /** Reads the directory entries of the provided path. */
-    @HiddenFromObjC
     fun readDir(path: String): kotlin.Result<Iterator<kotlin.Result<SysReadDirEntry>>>
 
     /** Checks if the provided path is a valid executable. */
-    @HiddenFromObjC
     fun isValidExecutable(path: String): kotlin.Result<Boolean>
 }
 
@@ -103,7 +99,19 @@ interface Sys {
  * In environments without a filesystem (browser JS / Wasm-JS) the host-touching
  * methods return failures and callers are expected to plug in a custom [Sys].
  */
-expect class RealSys() : Sys
+@HiddenFromObjC
+expect class RealSys() : Sys {
+    override fun isWindows(): Boolean
+    override fun currentDir(): kotlin.Result<String>
+    override fun homeDir(): String?
+    override fun envSplitPaths(paths: String): List<String>
+    override fun envPath(): String?
+    override fun envPathExt(): String?
+    override fun metadata(path: String): kotlin.Result<SysMetadata>
+    override fun symlinkMetadata(path: String): kotlin.Result<SysMetadata>
+    override fun readDir(path: String): kotlin.Result<Iterator<kotlin.Result<SysReadDirEntry>>>
+    override fun isValidExecutable(path: String): kotlin.Result<Boolean>
+}
 
 internal fun parsePathExt(pathext: String?): List<String> {
     // Sample %PATHEXT%: .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
