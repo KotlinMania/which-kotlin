@@ -1,10 +1,10 @@
+// port-lint: source src/sys.rs (platform glue, Wasm-WASI target)
 package io.github.kotlinmania.which
 
-import kotlinx.io.files.FileMetadata
-import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
+import io.github.kotlinmania.io.files.FileMetadata
+import io.github.kotlinmania.io.files.Path
+import io.github.kotlinmania.io.files.SystemFileSystem
 
-// port-lint: source src/sys.rs (platform glue, Wasm-WASI target)
 actual class RealSys actual constructor() : Sys {
 
     override fun isWindows(): Boolean = false

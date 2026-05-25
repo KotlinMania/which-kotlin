@@ -1,10 +1,10 @@
-// port-lint: ignore
+// port-lint: tests tests/basic.rs
 package io.github.kotlinmania.which
 
-import kotlinx.io.files.Path
-import kotlinx.io.files.SystemFileSystem
-import kotlinx.io.buffered
-import kotlinx.io.writeString
+import io.github.kotlinmania.io.buffered
+import io.github.kotlinmania.io.files.Path
+import io.github.kotlinmania.io.files.SystemFileSystem
+import io.github.kotlinmania.io.writeString
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test

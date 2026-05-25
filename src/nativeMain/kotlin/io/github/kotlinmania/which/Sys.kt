@@ -1,4 +1,6 @@
 // port-lint: source src/sys.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
 
 import kotlinx.cinterop.ByteVar
@@ -12,6 +14,7 @@ import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.toKString
 import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.HiddenFromObjC
 import platform.posix.S_IFMT
 import platform.posix.S_IFREG
 import platform.posix.X_OK
@@ -26,6 +29,7 @@ import platform.posix.stat
 import platform.posix.strerror
 
 @OptIn(ExperimentalForeignApi::class, ExperimentalNativeApi::class)
+@HiddenFromObjC
 actual class RealSys actual constructor() : Sys {
 
     override fun isWindows(): Boolean =

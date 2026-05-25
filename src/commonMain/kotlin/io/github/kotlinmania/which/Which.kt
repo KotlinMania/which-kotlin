@@ -1,5 +1,9 @@
 // port-lint: source src/lib.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Find an executable binary's path by name.
@@ -22,6 +26,7 @@ package io.github.kotlinmania.which
  * assertEquals("/usr/bin/rustc", result)
  * ```
  */
+@HiddenFromObjC
 fun which(binaryName: String): Result<String> =
     whichAll(binaryName).fold(
         onSuccess = { it.firstOrCannotFind() },
@@ -39,6 +44,7 @@ fun which(binaryName: String): Result<String> =
  * [binaryName] at each directory in `$PATH` and if it finds an executable
  * file there, returns it.
  */
+@HiddenFromObjC
 fun whichGlobal(binaryName: String): Result<String> =
     whichAllGlobal(binaryName).fold(
         onSuccess = { it.firstOrCannotFind() },
@@ -46,6 +52,7 @@ fun whichGlobal(binaryName: String): Result<String> =
     )
 
 /** Find all binaries with [binaryName] using `cwd` to resolve relative paths. */
+@HiddenFromObjC
 fun whichAll(binaryName: String): Result<Iterator<String>> {
     val sys = RealSys()
     val cwd = sys.currentDir().getOrNull()
@@ -53,6 +60,7 @@ fun whichAll(binaryName: String): Result<Iterator<String>> {
 }
 
 /** Find all binaries with [binaryName] ignoring `cwd`. */
+@HiddenFromObjC
 fun whichAllGlobal(binaryName: String): Result<Iterator<String>> {
     val sys = RealSys()
     return Finder(sys).find(binaryName, sys.envPath(), null, Noop)
@@ -85,12 +93,14 @@ fun whichAllGlobal(binaryName: String): Result<Iterator<String>> {
  * whichRe(Regex("^cargo-.*")).getOrThrow().forEach { pth -> println(pth) }
  * ```
  */
+@HiddenFromObjC
 fun whichRe(regex: Regex): Result<Iterator<String>> {
     val sys = RealSys()
     return whichReIn(regex, sys.envPath())
 }
 
 /** Find [binaryName] in the path list [paths], using [cwd] to resolve relative paths. */
+@HiddenFromObjC
 fun whichIn(binaryName: String, paths: String?, cwd: String): Result<String> =
     whichInAll(binaryName, paths, cwd).fold(
         onSuccess = { it.firstOrCannotFind() },
@@ -116,6 +126,7 @@ fun whichIn(binaryName: String, paths: String?, cwd: String): Result<String> =
  * // Expected: ["/usr/bin/python2", "/usr/bin/python3"]
  * ```
  */
+@HiddenFromObjC
 fun whichReIn(regex: Regex, paths: String?): Result<Iterator<String>> =
     Finder(RealSys()).findRe(regex, paths, Noop)
 
@@ -123,10 +134,12 @@ fun whichReIn(regex: Regex, paths: String?): Result<Iterator<String>> =
  * Find all binaries with [binaryName] in the path list [paths], using [cwd]
  * to resolve relative paths.
  */
+@HiddenFromObjC
 fun whichInAll(binaryName: String, paths: String?, cwd: String): Result<Iterator<String>> =
     Finder(RealSys()).find(binaryName, paths, cwd, Noop)
 
 /** Find all binaries with [binaryName] in the path list [paths], ignoring `cwd`. */
+@HiddenFromObjC
 fun whichInGlobal(binaryName: String, paths: String?): Result<Iterator<String>> =
     Finder(RealSys()).find(binaryName, paths, null, Noop)
 

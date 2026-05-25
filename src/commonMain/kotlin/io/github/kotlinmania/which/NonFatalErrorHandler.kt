@@ -1,5 +1,9 @@
 // port-lint: source src/lib.rs
+@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+
 package io.github.kotlinmania.which
+
+import kotlin.native.HiddenFromObjC
 
 /**
  * Defines what should happen when a nonfatal error is encountered. A nonfatal
@@ -11,6 +15,7 @@ package io.github.kotlinmania.which
  * interface for your own types.
  */
 interface NonFatalErrorHandler {
+    @HiddenFromObjC
     fun handle(e: NonFatalError)
 
     companion object {
@@ -18,6 +23,7 @@ interface NonFatalErrorHandler {
          * Adapts a plain function reference into a [NonFatalErrorHandler],
          * matching the upstream blanket impl for any `FnMut(NonFatalError)`.
          */
+        @HiddenFromObjC
         fun forFunction(f: (NonFatalError) -> Unit): NonFatalErrorHandler =
             object : NonFatalErrorHandler {
                 override fun handle(e: NonFatalError) {
