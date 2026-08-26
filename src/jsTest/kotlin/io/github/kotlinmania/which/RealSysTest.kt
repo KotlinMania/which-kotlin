@@ -1,6 +1,3 @@
-// port-lint: ignore
-// Integration tests that drive the Node-backed `RealSys` against a real
-// on-disk tempdir created with `fs.mkdtempSync`.
 package io.github.kotlinmania.which
 
 import kotlin.test.AfterTest

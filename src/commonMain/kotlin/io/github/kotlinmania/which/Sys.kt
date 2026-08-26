@@ -1,4 +1,4 @@
-// port-lint: source src/sys.rs
+// port-lint: source sys.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
@@ -84,6 +84,9 @@ interface Sys {
 
     /** Checks if the provided path is a valid executable. */
     fun isValidExecutable(path: String): kotlin.Result<Boolean>
+
+    /** Returns the canonical, absolute form of [path] with all symlinks resolved. */
+    fun canonicalize(path: String): kotlin.Result<String> = kotlin.Result.success(path)
 }
 
 /**

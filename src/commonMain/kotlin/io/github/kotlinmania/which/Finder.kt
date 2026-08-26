@@ -1,4 +1,4 @@
-// port-lint: source src/finder.rs
+// port-lint: source finder.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
@@ -44,6 +44,10 @@ class Finder(private val sys: Sys) {
         nonfatalErrorHandler: NonFatalErrorHandler,
     ): Result<Iterator<String>> =
         WhichFindRegexIter.create(sys, paths, binaryRegex, nonfatalErrorHandler)
+
+    companion object {
+        fun new(sys: Sys): Finder = Finder(sys)
+    }
 }
 
 private class WhichFindIterator private constructor(

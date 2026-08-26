@@ -425,10 +425,8 @@ kotlin {
     linuxArm64 { configureBenchmarkCompilation() }
     mingwX64 { configureBenchmarkCompilation() }
 
-    // Android NDK — always built (full target surface, no opt-in gate).
-    androidNativeArm32 { configureBenchmarkCompilation() }
+    // Android NDK — 64-bit only (32-bit retired §5.5.3, 2026-06-25).
     androidNativeArm64 { configureBenchmarkCompilation() }
-    androidNativeX86 { configureBenchmarkCompilation() }
     androidNativeX64 { configureBenchmarkCompilation() }
 
     // Web
@@ -488,6 +486,12 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        wasmWasiMain.dependencies {
+            implementation("io.github.kotlinmania:km-io:0.1.5")
+        }
+        wasmWasiTest.dependencies {
+            implementation("io.github.kotlinmania:km-io:0.1.5")
+        }
         if (benchmarkEnabled) {
             val commonBenchmark = maybeCreate("commonBenchmark")
             commonBenchmark.dependencies {
@@ -497,19 +501,6 @@ kotlin {
                 findByName("${targetName}Benchmark")?.dependsOn(commonBenchmark)
             }
         }
-
-        val nativeMain by getting
-        val androidNativeMain by getting
-        val linuxMain by getting
-        val mingwMain by getting
-
-        val nonAppleNativeMain by creating {
-            dependsOn(nativeMain)
-        }
-
-        androidNativeMain.dependsOn(nonAppleNativeMain)
-        linuxMain.dependsOn(nonAppleNativeMain)
-        mingwMain.dependsOn(nonAppleNativeMain)
     }
 }
 
@@ -724,8 +715,7 @@ mavenPublishing {
 tasks.register("test") {
     group = "verification"
     description = "Runs the commonTest-backed KMP suite, Android host tests, and Swift Export smoke test."
-    dependsOn("allTests")
-    dependsOn("testAndroidHostTest")
+    dependsOn("hostTests")
     dependsOn("swiftExportSmokeTest")
 }
 
@@ -769,6 +759,7 @@ tasks.register("swiftExportSmokeTest") {
                 .get()
                 .asFile
                 .absolutePath
+        file(swiftBuildDir).deleteRecursively()
         execOperations
             .exec {
                 workingDir = projectDir
@@ -835,10 +826,8 @@ tasks.register("swiftExportSmokeTest") {
 // ============================================================================
 val nativeTargetNames =
     listOf(
-        "androidNativeArm32",
         "androidNativeArm64",
         "androidNativeX64",
-        "androidNativeX86",
         "iosArm64",
         "iosSimulatorArm64",
         "iosX64",

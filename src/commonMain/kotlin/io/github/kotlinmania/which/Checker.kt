@@ -1,4 +1,4 @@
-// port-lint: source src/checker.rs
+// port-lint: source checker.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
