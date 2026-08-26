@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
@@ -150,6 +150,11 @@ class WhichConfig(internal val sys: Sys) {
     }
 
     companion object {
+        /**
+         * Creates a new [WhichConfig] with [RealSys].
+         */
+        fun new(): WhichConfig = WhichConfig(RealSys())
+
         /**
          * Creates a new [WhichConfig] with the given [Sys].
          *

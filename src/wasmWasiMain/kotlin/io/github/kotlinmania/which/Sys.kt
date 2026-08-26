@@ -1,4 +1,3 @@
-// port-lint: source src/sys.rs (platform glue, Wasm-WASI target)
 package io.github.kotlinmania.which
 
 import io.github.kotlinmania.io.files.FileMetadata

@@ -1,4 +1,4 @@
-// port-lint: source src/lib.rs
+// port-lint: source lib.rs
 @file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
@@ -71,7 +71,7 @@ fun whichAllGlobal(binaryName: String): Result<Iterator<String>> {
  *
  * # Arguments
  *
- * * `regex` - A regular expression to match binaries with
+ * * `regex` - A regular expression used to filter binaries
  *
  * # Examples
  *
@@ -112,7 +112,7 @@ fun whichIn(binaryName: String, paths: String?, cwd: String): Result<String> =
  *
  * # Arguments
  *
- * * `regex` - A regular expression to match binaries with
+ * * `regex` - A regular expression used to filter binaries
  * * `paths` - A string containing the paths to search
  *   (separated in the same way as the PATH environment variable)
  *

@@ -1,4 +1,3 @@
-// port-lint: source src/sys.rs
 @file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlin.experimental.ExperimentalNativeApi::class)
 
 package io.github.kotlinmania.which

@@ -1,4 +1,3 @@
-// port-lint: source src/sys.rs (WASI environment glue)
 @file:OptIn(kotlin.wasm.ExperimentalWasmInterop::class, kotlin.wasm.unsafe.UnsafeWasmMemoryApi::class)
 
 package io.github.kotlinmania.which

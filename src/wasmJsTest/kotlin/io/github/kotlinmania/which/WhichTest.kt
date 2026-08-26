@@ -1,9 +1,3 @@
-// port-lint: ignore
-// Integration tests for the public top-level which()/whichAll()/whichRe() free
-// functions and their Path.* companion factories. Drives the Wasm-JS Node-
-// backed RealSys against a real on-disk tempdir; the wrapped Finder layer is
-// covered separately by RealSysTest, this file is specifically about the
-// public API surface exposed to consumers of the crate.
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.which

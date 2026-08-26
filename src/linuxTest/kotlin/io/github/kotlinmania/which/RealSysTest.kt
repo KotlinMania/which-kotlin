@@ -1,8 +1,3 @@
-// port-lint: ignore
-// Integration tests that exercise the native `RealSys` implementation against
-// a real on-disk tempdir. The upstream `tests/basic.rs` runs a similar shape
-// using the `tempfile` crate; here we drive POSIX directly because there is no
-// tempfile-kotlin sibling port yet.
 package io.github.kotlinmania.which
 
 import kotlinx.cinterop.ExperimentalForeignApi

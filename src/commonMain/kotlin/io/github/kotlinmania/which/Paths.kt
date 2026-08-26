@@ -1,7 +1,4 @@
-// port-lint: ignore
-// Common path helpers used across the port. There is no single Rust counterpart
-// because the upstream crate leans on `std::path::Path` / `PathBuf` from the
-// Rust standard library; this file collects the minimal subset our port needs.
+// Common path helpers used across the port.
 package io.github.kotlinmania.which
 
 internal fun isAbsolutePath(path: String): Boolean {

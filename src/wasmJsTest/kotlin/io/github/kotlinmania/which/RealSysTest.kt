@@ -1,6 +1,3 @@
-// port-lint: ignore
-// Integration tests that drive the wasmJs-backed `RealSys` against a real
-// on-disk tempdir created via Node's `fs.mkdtempSync`.
 @file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 
 package io.github.kotlinmania.which

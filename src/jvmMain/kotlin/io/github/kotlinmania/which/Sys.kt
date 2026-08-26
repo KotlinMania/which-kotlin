@@ -1,4 +1,3 @@
-// port-lint: source src/sys.rs
 package io.github.kotlinmania.which
 
 import java.io.File

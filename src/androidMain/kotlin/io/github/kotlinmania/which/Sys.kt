@@ -1,4 +1,5 @@
-// port-lint: source src/sys.rs
+@file:Suppress("UNUSED_PARAMETER")
+
 package io.github.kotlinmania.which
 
 import java.io.File
