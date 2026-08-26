@@ -1,5 +1,5 @@
 // port-lint: source src/sys.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
+@file:OptIn(ExperimentalForeignApi::class)
 
 package io.github.kotlinmania.which
 
