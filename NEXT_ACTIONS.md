@@ -29,7 +29,7 @@ Every matched file is listed below with function and type symbol parity.
 
 ### 1. sys
 
-- **Target:** `commonMain.kotlin.io.github.kotlinmania.which.Sys`
+- **Target:** `which.Sys`
 - **Similarity:** 0.08
 - **Dependents:** 3
 - **Priority Score:** 3162309.2
