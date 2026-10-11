@@ -94,20 +94,20 @@ class RealSysTest {
     }
 }
 
-@JsFun("() => typeof require !== 'undefined' && typeof process !== 'undefined'")
+@JsFun("() => typeof process !== 'undefined' && process.release && process.release.name === 'node'")
 private external fun runsInNode(): Boolean
 
-@JsFun("() => require('fs').mkdtempSync(require('os').tmpdir() + '/which-test-')")
+@JsFun("() => { const fs = process.getBuiltinModule('fs'); const os = process.getBuiltinModule('os'); return fs.mkdtempSync(os.tmpdir() + '/which-test-'); }")
 private external fun jsMkTempRoot(): String
 
-@JsFun("(p) => require('fs').rmSync(p, { recursive: true, force: true })")
+@JsFun("(p) => process.getBuiltinModule('fs').rmSync(p, { recursive: true, force: true })")
 private external fun jsRmRecursive(path: String)
 
-@JsFun("(p) => require('fs').mkdirSync(p, { recursive: true })")
+@JsFun("(p) => process.getBuiltinModule('fs').mkdirSync(p, { recursive: true })")
 private external fun jsMkdirRecursive(path: String)
 
-@JsFun("(p, c) => require('fs').writeFileSync(p, c)")
+@JsFun("(p, c) => process.getBuiltinModule('fs').writeFileSync(p, c)")
 private external fun jsWriteFile(path: String, content: String)
 
-@JsFun("(p, m) => require('fs').chmodSync(p, m)")
+@JsFun("(p, m) => process.getBuiltinModule('fs').chmodSync(p, m)")
 private external fun jsChmod(path: String, mode: Int)

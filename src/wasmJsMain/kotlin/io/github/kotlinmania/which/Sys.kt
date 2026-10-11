@@ -68,28 +68,28 @@ private external fun jsPlatform(): String
 @JsFun("() => process.cwd()")
 private external fun jsCwd(): String
 
-@JsFun("() => { try { var r = eval('typeof require === \"function\" ? require : null'); return r ? (r('os').homedir() || '') : ''; } catch (e) { return ''; } }")
+@JsFun("() => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('os').homedir() || ''; } var r = eval('typeof require === \"function\" ? require : null'); return r ? (r('os').homedir() || '') : ''; } catch (e) { return ''; } }")
 private external fun jsHomeDir(): String
 
 @JsFun("(name) => { const v = process.env[name]; return v === undefined ? null : v; }")
 private external fun jsEnvVar(name: String): String?
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').statSync(p).isFile() : false; } catch (e) { return false; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('fs').statSync(p).isFile(); } var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').statSync(p).isFile() : false; } catch (e) { return false; } }")
 private external fun jsStatIsFile(path: String): Boolean
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').lstatSync(p).isFile() : false; } catch (e) { return false; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('fs').lstatSync(p).isFile(); } var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').lstatSync(p).isFile() : false; } catch (e) { return false; } }")
 private external fun jsLstatIsFile(path: String): Boolean
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').lstatSync(p).isSymbolicLink() : false; } catch (e) { return false; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('fs').lstatSync(p).isSymbolicLink(); } var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').lstatSync(p).isSymbolicLink() : false; } catch (e) { return false; } }")
 private external fun jsLstatIsSymlink(path: String): Boolean
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').readdirSync(p).join('\\u0000') : ''; } catch (e) { return ''; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('fs').readdirSync(p).join('\\u0000'); } var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').readdirSync(p).join('\\u0000') : ''; } catch (e) { return ''; } }")
 private external fun jsReadDir(path: String): String
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); if (!r) return false; var fs = r('fs'); fs.accessSync(p, fs.constants.F_OK); return true; } catch (e) { return false; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { var fs = process.getBuiltinModule('fs'); fs.accessSync(p, fs.constants.F_OK); return true; } var r = eval('typeof require === \"function\" ? require : null'); if (!r) return false; var fs = r('fs'); fs.accessSync(p, fs.constants.F_OK); return true; } catch (e) { return false; } }")
 private external fun jsAccessExists(path: String): Boolean
 
-@JsFun("(p) => { try { var r = eval('typeof require === \"function\" ? require : null'); if (!r) return false; var fs = r('fs'); fs.accessSync(p, fs.constants.X_OK); return true; } catch (e) { return false; } }")
+@JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { var fs = process.getBuiltinModule('fs'); fs.accessSync(p, fs.constants.X_OK); return true; } var r = eval('typeof require === \"function\" ? require : null'); if (!r) return false; var fs = r('fs'); fs.accessSync(p, fs.constants.X_OK); return true; } catch (e) { return false; } }")
 private external fun jsAccessExecutable(path: String): Boolean
 
 private class WasmJsMetadata(
