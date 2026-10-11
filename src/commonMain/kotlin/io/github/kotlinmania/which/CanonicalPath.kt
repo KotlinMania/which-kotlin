@@ -18,7 +18,9 @@ import kotlin.native.HiddenFromObjC
  * points to a binary that is executable, is absolute, has all components
  * normalized, and has all symbolic links resolved.
  */
-class CanonicalPath internal constructor(internal val inner: String) {
+class CanonicalPath internal constructor(
+    internal val inner: String,
+) {
     /** Returns the underlying path string. */
     fun asPath(): String = inner
 
@@ -56,6 +58,7 @@ class CanonicalPath internal constructor(internal val inner: String) {
             return whichAll(binaryName).map { iter ->
                 object : Iterator<Result<CanonicalPath>> {
                     override fun hasNext(): Boolean = iter.hasNext()
+
                     override fun next(): Result<CanonicalPath> {
                         val path = iter.next()
                         return sys.canonicalize(path).map { CanonicalPath(it) }
@@ -90,6 +93,7 @@ class CanonicalPath internal constructor(internal val inner: String) {
             return whichInAll(binaryName, paths, cwd).map { iter ->
                 object : Iterator<Result<CanonicalPath>> {
                     override fun hasNext(): Boolean = iter.hasNext()
+
                     override fun next(): Result<CanonicalPath> {
                         val path = iter.next()
                         return sys.canonicalize(path).map { CanonicalPath(it) }

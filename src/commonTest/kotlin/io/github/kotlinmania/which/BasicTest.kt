@@ -13,13 +13,22 @@ import kotlin.test.assertEquals
 // commonTest-portable.
 
 private sealed class DirectoryEntry {
-    class Directory(val entries: MutableMap<String, DirectoryEntry> = mutableMapOf()) : DirectoryEntry()
-    class File(val isValidExecutable: Boolean) : DirectoryEntry()
-    class Symlink(val to: String) : DirectoryEntry()
+    class Directory(
+        val entries: MutableMap<String, DirectoryEntry> = mutableMapOf(),
+    ) : DirectoryEntry()
+
+    class File(
+        val isValidExecutable: Boolean,
+    ) : DirectoryEntry()
+
+    class Symlink(
+        val to: String,
+    ) : DirectoryEntry()
 
     fun asMetadata(): SysMetadata =
         object : SysMetadata {
             override fun isSymlink(): Boolean = this@DirectoryEntry is Symlink
+
             override fun isFile(): Boolean = this@DirectoryEntry is File
         }
 }
@@ -70,8 +79,9 @@ private class InMemorySys : Sys {
         // not super efficient, but good enough for testing
         val dirPath = parentOf(path) ?: error("no parent for $path")
         createDirectory(dirPath)
-        val dir = (withEntryMut(dirPath) ?: error("parent not found: $dirPath")) as? DirectoryEntry.Directory
-            ?: error("parent is not a directory: $dirPath")
+        val dir =
+            (withEntryMut(dirPath) ?: error("parent not found: $dirPath")) as? DirectoryEntry.Directory
+                ?: error("parent is not a directory: $dirPath")
         val name = pathSegments(path).last()
         dir.entries[name] = entry
     }
@@ -135,40 +145,46 @@ private class InMemorySys : Sys {
     override fun envPathExt(): String? = envVars["PATHEXT"]
 
     override fun metadata(path: String): Result<SysMetadata> {
-        val entry = getEntryFollowSymlink(path)
-            ?: return Result.failure(IoError("metadata: entry not found"))
+        val entry =
+            getEntryFollowSymlink(path)
+                ?: return Result.failure(IoError("metadata: entry not found"))
         return Result.success(entry.asMetadata())
     }
 
     override fun symlinkMetadata(path: String): Result<SysMetadata> {
-        val entry = getEntry(path)
-            ?: return Result.failure(IoError("metadata: entry not found"))
+        val entry =
+            getEntry(path)
+                ?: return Result.failure(IoError("metadata: entry not found"))
         return Result.success(entry.asMetadata())
     }
 
     override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
-        val entry = getEntryFollowSymlink(path)
-            ?: return Result.failure(IoError("metadata: entry not found"))
+        val entry =
+            getEntryFollowSymlink(path)
+                ?: return Result.failure(IoError("metadata: entry not found"))
         if (entry !is DirectoryEntry.Directory) {
             return Result.failure(IoError("Not a directory"))
         }
         // BTreeMap iteration order in upstream Rust is sorted by key; mirror it.
         val sortedNames = entry.entries.keys.sorted()
-        val list = sortedNames.map { name ->
-            val full = joinForReadDir(path, name)
-            Result.success(
-                object : SysReadDirEntry {
-                    override fun fileName(): String = name
-                    override fun path(): String = full
-                },
-            )
-        }
+        val list =
+            sortedNames.map { name ->
+                val full = joinForReadDir(path, name)
+                Result.success(
+                    object : SysReadDirEntry {
+                        override fun fileName(): String = name
+
+                        override fun path(): String = full
+                    },
+                )
+            }
         return Result.success(list.iterator())
     }
 
     override fun isValidExecutable(path: String): Result<Boolean> {
-        val entry = getEntryFollowSymlink(path)
-            ?: return Result.failure(IoError("is_valid_executable: entry not found"))
+        val entry =
+            getEntryFollowSymlink(path)
+                ?: return Result.failure(IoError("is_valid_executable: entry not found"))
         return Result.success(
             when (entry) {
                 is DirectoryEntry.File -> entry.isValidExecutable

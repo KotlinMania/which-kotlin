@@ -13,7 +13,9 @@ typealias Result<T> = kotlin.Result<T>
 
 /** Reasons a [which] lookup can fail. */
 @HiddenFromObjC
-sealed class Error(message: String) : RuntimeException(message) {
+sealed class Error(
+    message: String,
+) : RuntimeException(message) {
     /** An executable binary with that name was not found. */
     data object CannotFindBinaryPath : Error("cannot find binary path")
 
@@ -35,11 +37,14 @@ sealed class Error(message: String) : RuntimeException(message) {
 @HiddenFromObjC
 sealed class NonFatalError {
     /** The underlying I/O operation failed. */
-    data class Io(val cause: IoError) : NonFatalError()
+    data class Io(
+        val cause: IoError,
+    ) : NonFatalError()
 
-    override fun toString(): String = when (this) {
-        is Io -> cause.message ?: cause::class.simpleName.orEmpty()
-    }
+    override fun toString(): String =
+        when (this) {
+            is Io -> cause.message ?: cause::class.simpleName.orEmpty()
+        }
 }
 
 /**
@@ -48,4 +53,7 @@ sealed class NonFatalError {
  * through common code without depending on any particular I/O framework.
  */
 @HiddenFromObjC
-open class IoError(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
+open class IoError(
+    message: String,
+    cause: Throwable? = null,
+) : RuntimeException(message, cause)

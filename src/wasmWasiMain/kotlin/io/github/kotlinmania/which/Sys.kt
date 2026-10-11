@@ -5,7 +5,6 @@ import io.github.kotlinmania.io.files.Path
 import io.github.kotlinmania.io.files.SystemFileSystem
 
 actual class RealSys actual constructor() : Sys {
-
     actual override fun isWindows(): Boolean = false
 
     actual override fun currentDir(): Result<String> =
@@ -26,8 +25,9 @@ actual class RealSys actual constructor() : Sys {
 
     actual override fun metadata(path: String): Result<SysMetadata> =
         runCatching {
-            val metadata = SystemFileSystem.metadataOrNull(Path(path))
-                ?: throw IoError("metadata($path): no such file or directory")
+            val metadata =
+                SystemFileSystem.metadataOrNull(Path(path))
+                    ?: throw IoError("metadata($path): no such file or directory")
             WasmWasiMetadata(metadata) as SysMetadata
         }.recoverCatching { e ->
             throw ioError("metadata($path)", e)
@@ -38,9 +38,11 @@ actual class RealSys actual constructor() : Sys {
 
     actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> =
         runCatching {
-            SystemFileSystem.list(Path(path)).map { child ->
-                Result.success<SysReadDirEntry>(WasmWasiDirEntry(child))
-            }.iterator()
+            SystemFileSystem
+                .list(Path(path))
+                .map { child ->
+                    Result.success<SysReadDirEntry>(WasmWasiDirEntry(child))
+                }.iterator()
         }.recoverCatching { e ->
             throw ioError("readDir($path)", e)
         }
@@ -55,12 +57,18 @@ actual class RealSys actual constructor() : Sys {
         cause as? IoError ?: IoError("$operation: ${cause.message ?: cause::class.simpleName.orEmpty()}", cause)
 }
 
-private class WasmWasiMetadata(private val metadata: FileMetadata) : SysMetadata {
+private class WasmWasiMetadata(
+    private val metadata: FileMetadata,
+) : SysMetadata {
     override fun isSymlink(): Boolean = false
+
     override fun isFile(): Boolean = metadata.isRegularFile
 }
 
-private class WasmWasiDirEntry(private val path: Path) : SysReadDirEntry {
+private class WasmWasiDirEntry(
+    private val path: Path,
+) : SysReadDirEntry {
     override fun fileName(): String = path.name
+
     override fun path(): String = path.toString()
 }

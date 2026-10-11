@@ -1,18 +1,19 @@
 package io.github.kotlinmania.which
 
 actual class RealSys actual constructor() : Sys {
-
     actual override fun isWindows(): Boolean = nodeProcess().platform.unsafeCast<String>() == "win32"
 
-    actual override fun currentDir(): Result<String> = runCatching {
-        nodeProcess().cwd().unsafeCast<String>()
-    }
+    actual override fun currentDir(): Result<String> =
+        runCatching {
+            nodeProcess().cwd().unsafeCast<String>()
+        }
 
-    actual override fun homeDir(): String? = try {
-        nodeOs().homedir().unsafeCast<String>().takeIf { it.isNotEmpty() }
-    } catch (_: Throwable) {
-        null
-    }
+    actual override fun homeDir(): String? =
+        try {
+            nodeOs().homedir().unsafeCast<String>().takeIf { it.isNotEmpty() }
+        } catch (_: Throwable) {
+            null
+        }
 
     actual override fun envSplitPaths(paths: String): List<String> {
         val sep = if (isWindows()) ';' else ':'
@@ -29,45 +30,51 @@ actual class RealSys actual constructor() : Sys {
         return if (v == undefined() || v == null) null else v.unsafeCast<String>().takeIf { it.isNotEmpty() }
     }
 
-    actual override fun metadata(path: String): Result<SysMetadata> = runCatching {
-        val stats = nodeFs().statSync(path)
-        JsMetadata(
-            isRegular = stats.isFile().unsafeCast<Boolean>(),
-            isSymlink = false,
-        ) as SysMetadata
-    }.recoverCatching { e ->
-        throw IoError("stat($path): ${e.message ?: e.toString()}", e)
-    }
-
-    actual override fun symlinkMetadata(path: String): Result<SysMetadata> = runCatching {
-        val stats = nodeFs().lstatSync(path)
-        JsMetadata(
-            isRegular = stats.isFile().unsafeCast<Boolean>(),
-            isSymlink = stats.isSymbolicLink().unsafeCast<Boolean>(),
-        ) as SysMetadata
-    }.recoverCatching { e ->
-        throw IoError("lstat($path): ${e.message ?: e.toString()}", e)
-    }
-
-    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> = runCatching {
-        val names = nodeFs().readdirSync(path).unsafeCast<Array<String>>()
-        names.map { name ->
-            Result.success<SysReadDirEntry>(JsDirEntry(name, pathJoin(path, name)))
-        }.iterator()
-    }.recoverCatching { e ->
-        throw IoError("readDir($path): ${e.message ?: e.toString()}", e)
-    }
-
-    actual override fun isValidExecutable(path: String): Result<Boolean> = runCatching {
-        val fs = nodeFs()
-        val mode = if (isWindows()) {
-            fs.constants.F_OK.unsafeCast<Int>()
-        } else {
-            fs.constants.X_OK.unsafeCast<Int>()
+    actual override fun metadata(path: String): Result<SysMetadata> =
+        runCatching {
+            val stats = nodeFs().statSync(path)
+            JsMetadata(
+                isRegular = stats.isFile().unsafeCast<Boolean>(),
+                isSymlink = false,
+            ) as SysMetadata
+        }.recoverCatching { e ->
+            throw IoError("stat($path): ${e.message ?: e.toString()}", e)
         }
-        fs.accessSync(path, mode)
-        true
-    }.recover { false }
+
+    actual override fun symlinkMetadata(path: String): Result<SysMetadata> =
+        runCatching {
+            val stats = nodeFs().lstatSync(path)
+            JsMetadata(
+                isRegular = stats.isFile().unsafeCast<Boolean>(),
+                isSymlink = stats.isSymbolicLink().unsafeCast<Boolean>(),
+            ) as SysMetadata
+        }.recoverCatching { e ->
+            throw IoError("lstat($path): ${e.message ?: e.toString()}", e)
+        }
+
+    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> =
+        runCatching {
+            val names = nodeFs().readdirSync(path).unsafeCast<Array<String>>()
+            names
+                .map { name ->
+                    Result.success<SysReadDirEntry>(JsDirEntry(name, pathJoin(path, name)))
+                }.iterator()
+        }.recoverCatching { e ->
+            throw IoError("readDir($path): ${e.message ?: e.toString()}", e)
+        }
+
+    actual override fun isValidExecutable(path: String): Result<Boolean> =
+        runCatching {
+            val fs = nodeFs()
+            val mode =
+                if (isWindows()) {
+                    fs.constants.F_OK.unsafeCast<Int>()
+                } else {
+                    fs.constants.X_OK.unsafeCast<Int>()
+                }
+            fs.accessSync(path, mode)
+            true
+        }.recover { false }
 }
 
 // Webpack's static analyzer would otherwise see literal `require('fs')` / `require('os')` and
@@ -78,13 +85,15 @@ actual class RealSys actual constructor() : Sys {
 // the eval expression. `new Function('return require')()` would NOT work here: the Function
 // constructor runs its body in GLOBAL scope where Node's module-local `require` is invisible,
 // and `typeof require` would evaluate to 'undefined', breaking every runtime fs call.
-private fun nodeFs(): dynamic = js(
-    "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs') : null; } catch (e) { return null; } })()"
-)
+private fun nodeFs(): dynamic =
+    js(
+        "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs') : null; } catch (e) { return null; } })()",
+    )
 
-private fun nodeOs(): dynamic = js(
-    "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('os') : null; } catch (e) { return null; } })()"
-)
+private fun nodeOs(): dynamic =
+    js(
+        "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('os') : null; } catch (e) { return null; } })()",
+    )
 
 private fun nodeProcess(): dynamic = js("process")
 
@@ -95,6 +104,7 @@ private class JsMetadata(
     private val isSymlink: Boolean,
 ) : SysMetadata {
     override fun isSymlink(): Boolean = isSymlink
+
     override fun isFile(): Boolean = isRegular
 }
 
@@ -103,5 +113,6 @@ private class JsDirEntry(
     private val fullPath: String,
 ) : SysReadDirEntry {
     override fun fileName(): String = fileName
+
     override fun path(): String = fullPath
 }

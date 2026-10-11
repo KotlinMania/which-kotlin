@@ -3,7 +3,6 @@ package io.github.kotlinmania.which
 import java.io.File
 
 actual class RealSys actual constructor() : Sys {
-
     actual override fun isWindows(): Boolean = File.separatorChar == '\\'
 
     actual override fun currentDir(): Result<String> {
@@ -51,11 +50,13 @@ actual class RealSys actual constructor() : Sys {
 
     actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
         val dir = File(path)
-        val children = dir.listFiles()
-            ?: return Result.failure(IoError("readDir($path): not a directory"))
-        val entries = children.map { child ->
-            Result.success<SysReadDirEntry>(JvmDirEntry(child.name, child.path))
-        }
+        val children =
+            dir.listFiles()
+                ?: return Result.failure(IoError("readDir($path): not a directory"))
+        val entries =
+            children.map { child ->
+                Result.success<SysReadDirEntry>(JvmDirEntry(child.name, child.path))
+            }
         return Result.success(entries.iterator())
     }
 
@@ -76,6 +77,7 @@ private class JvmMetadata(
     private val isSymlink: Boolean,
 ) : SysMetadata {
     override fun isSymlink(): Boolean = isSymlink
+
     override fun isFile(): Boolean = isRegular
 }
 
@@ -84,5 +86,6 @@ private class JvmDirEntry(
     private val fullPath: String,
 ) : SysReadDirEntry {
     override fun fileName(): String = fileName
+
     override fun path(): String = fullPath
 }

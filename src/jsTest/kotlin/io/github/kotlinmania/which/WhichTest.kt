@@ -5,10 +5,8 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
 class WhichTest {
-
     private lateinit var root: String
 
     @BeforeTest
@@ -51,8 +49,11 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = whichInAll("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList()
+        val all =
+            whichInAll("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 
@@ -77,8 +78,12 @@ class WhichTest {
         writeExecutable(dir, "python3")
         writeExecutable(dir, "ruby")
 
-        val all = whichReIn(Regex("^python\\d$"), dir).getOrThrow()
-            .asSequence().toList().sorted()
+        val all =
+            whichReIn(Regex("^python\\d$"), dir)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .sorted()
         assertEquals(listOf("$dir/python2", "$dir/python3"), all)
     }
 
@@ -123,8 +128,13 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = Path.allIn("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList().map { it.asPath() }
+        val all =
+            Path
+                .allIn("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .map { it.asPath() }
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 

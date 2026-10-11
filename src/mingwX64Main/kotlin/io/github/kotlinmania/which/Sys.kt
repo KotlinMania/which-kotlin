@@ -27,47 +27,51 @@ import platform.posix.strerror
 internal actual fun nativeIsWindows(): Boolean =
     kotlin.native.Platform.osFamily == kotlin.native.OsFamily.WINDOWS
 
-internal actual fun nativeCurrentDir(): Result<String> = memScoped {
-    val buf = allocArray<ByteVar>(PATH_MAX_BYTES)
-    val r = getcwd(buf, PATH_MAX_BYTES.convert())
-    if (r == null) {
-        Result.failure(lastNativeIoError("getcwd"))
-    } else {
-        Result.success(r.toKString())
+internal actual fun nativeCurrentDir(): Result<String> =
+    memScoped {
+        val buf = allocArray<ByteVar>(PATH_MAX_BYTES)
+        val r = getcwd(buf, PATH_MAX_BYTES.convert())
+        if (r == null) {
+            Result.failure(lastNativeIoError("getcwd"))
+        } else {
+            Result.success(r.toKString())
+        }
     }
-}
 
 internal actual fun nativeEnv(key: String): String? =
     getenv(key)?.toKString()
 
-internal actual fun nativeMetadata(path: String): Result<SysMetadata> = memScoped {
-    val sb = alloc<stat>()
-    if (stat(path, sb.ptr) != 0) {
-        Result.failure(lastNativeIoError("stat($path)"))
-    } else {
-        val mode = sb.st_mode.toInt() and S_IFMT
-        Result.success(NativeMetadata(isRegular = mode == S_IFREG, isSymlink = false))
+internal actual fun nativeMetadata(path: String): Result<SysMetadata> =
+    memScoped {
+        val sb = alloc<stat>()
+        if (stat(path, sb.ptr) != 0) {
+            Result.failure(lastNativeIoError("stat($path)"))
+        } else {
+            val mode = sb.st_mode.toInt() and S_IFMT
+            Result.success(NativeMetadata(isRegular = mode == S_IFREG, isSymlink = false))
+        }
     }
-}
 
-internal actual fun nativeSymlinkMetadata(path: String): Result<SysMetadata> = memScoped {
-    val sb = alloc<stat>()
-    if (nativeLstat(path, sb.ptr) != 0) {
-        Result.failure(lastNativeIoError("lstat($path)"))
-    } else {
-        val mode = sb.st_mode.toInt() and S_IFMT
-        Result.success(
-            NativeMetadata(
-                isRegular = mode == S_IFREG,
-                isSymlink = nativeSymlinkBit() != 0 && mode == nativeSymlinkBit(),
-            ),
-        )
+internal actual fun nativeSymlinkMetadata(path: String): Result<SysMetadata> =
+    memScoped {
+        val sb = alloc<stat>()
+        if (nativeLstat(path, sb.ptr) != 0) {
+            Result.failure(lastNativeIoError("lstat($path)"))
+        } else {
+            val mode = sb.st_mode.toInt() and S_IFMT
+            Result.success(
+                NativeMetadata(
+                    isRegular = mode == S_IFREG,
+                    isSymlink = nativeSymlinkBit() != 0 && mode == nativeSymlinkBit(),
+                ),
+            )
+        }
     }
-}
 
 internal actual fun nativeReadDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> {
-    val dir = opendir(path)
-        ?: return Result.failure(lastNativeIoError("opendir($path)"))
+    val dir =
+        opendir(path)
+            ?: return Result.failure(lastNativeIoError("opendir($path)"))
     val entries = mutableListOf<Result<SysReadDirEntry>>()
     try {
         while (true) {

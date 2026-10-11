@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class WhichTest {
-
     private lateinit var root: String
 
     @BeforeTest
@@ -52,8 +51,11 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = whichInAll("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList()
+        val all =
+            whichInAll("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 
@@ -75,8 +77,12 @@ class WhichTest {
         writeExecutable(dir, "python3")
         writeExecutable(dir, "ruby")
 
-        val all = whichReIn(Regex("^python\\d$"), dir).getOrThrow()
-            .asSequence().toList().sorted()
+        val all =
+            whichReIn(Regex("^python\\d$"), dir)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .sorted()
         assertEquals(listOf("$dir/python2", "$dir/python3"), all)
     }
 
@@ -118,8 +124,13 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = Path.allIn("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList().map { it.asPath() }
+        val all =
+            Path
+                .allIn("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .map { it.asPath() }
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 
@@ -135,20 +146,20 @@ class WhichTest {
     }
 }
 
-@JsFun("() => typeof require !== 'undefined' && typeof process !== 'undefined'")
+@JsFun("() => typeof process !== 'undefined' && process.release && process.release.name === 'node'")
 private external fun runsInNode(): Boolean
 
-@JsFun("() => require('fs').mkdtempSync(require('os').tmpdir() + '/which-api-test-')")
+@JsFun("() => { const fs = process.getBuiltinModule('fs'); const os = process.getBuiltinModule('os'); return fs.mkdtempSync(os.tmpdir() + '/which-api-test-'); }")
 private external fun jsMkTempRoot(): String
 
-@JsFun("(p) => require('fs').rmSync(p, { recursive: true, force: true })")
+@JsFun("(p) => process.getBuiltinModule('fs').rmSync(p, { recursive: true, force: true })")
 private external fun jsRmRecursive(path: String)
 
-@JsFun("(p) => require('fs').mkdirSync(p, { recursive: true })")
+@JsFun("(p) => process.getBuiltinModule('fs').mkdirSync(p, { recursive: true })")
 private external fun jsMkdirRecursive(path: String)
 
-@JsFun("(p, c) => require('fs').writeFileSync(p, c)")
+@JsFun("(p, c) => process.getBuiltinModule('fs').writeFileSync(p, c)")
 private external fun jsWriteFile(path: String, content: String)
 
-@JsFun("(p, m) => require('fs').chmodSync(p, m)")
+@JsFun("(p, m) => process.getBuiltinModule('fs').chmodSync(p, m)")
 private external fun jsChmod(path: String, mode: Int)

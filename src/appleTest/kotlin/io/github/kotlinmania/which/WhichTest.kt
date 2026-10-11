@@ -5,12 +5,6 @@ package io.github.kotlinmania.which
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.convert
 import kotlinx.cinterop.toKString
-import kotlin.random.Random
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import platform.posix.S_IRGRP
 import platform.posix.S_IROTH
 import platform.posix.S_IRUSR
@@ -26,9 +20,14 @@ import platform.posix.getenv
 import platform.posix.mkdir
 import platform.posix.remove
 import platform.posix.rmdir
+import kotlin.random.Random
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class WhichTest {
-
     private lateinit var root: String
     private val tracked = mutableListOf<String>()
 
@@ -57,11 +56,12 @@ class WhichTest {
         } finally {
             fclose(fh)
         }
-        val mode = if (executable) {
-            modeBits(read = true, write = true, exec = true)
-        } else {
-            modeBits(read = true, write = true, exec = false)
-        }
+        val mode =
+            if (executable) {
+                modeBits(read = true, write = true, exec = true)
+            } else {
+                modeBits(read = true, write = true, exec = false)
+            }
         chmod(full, mode.convert())
         tracked.add(full)
         return full
@@ -92,8 +92,11 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = whichInAll("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList()
+        val all =
+            whichInAll("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 
@@ -113,8 +116,12 @@ class WhichTest {
         writeExecutable(dir, "python3")
         writeExecutable(dir, "ruby")
 
-        val all = whichReIn(Regex("^python\\d$"), dir).getOrThrow()
-            .asSequence().toList().sorted()
+        val all =
+            whichReIn(Regex("^python\\d$"), dir)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .sorted()
         assertEquals(listOf("$dir/python2", "$dir/python3"), all)
     }
 
@@ -152,8 +159,13 @@ class WhichTest {
         writeExecutable(binA, "tool")
         writeExecutable(binB, "tool")
 
-        val all = Path.allIn("tool", "$binA:$binB", root).getOrThrow()
-            .asSequence().toList().map { it.asPath() }
+        val all =
+            Path
+                .allIn("tool", "$binA:$binB", root)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+                .map { it.asPath() }
         assertEquals(listOf("$binA/tool", "$binB/tool"), all)
     }
 

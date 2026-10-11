@@ -10,8 +10,9 @@ private fun String.hasSeparator(): Boolean = pathComponentCount(this) > 1
 private fun String.toAbsolute(cwd: String): String = pathToAbsolute(this, cwd)
 
 @HiddenFromObjC
-class Finder(private val sys: Sys) {
-
+class Finder(
+    private val sys: Sys,
+) {
     fun find(
         binaryName: String,
         paths: String?,
@@ -20,21 +21,23 @@ class Finder(private val sys: Sys) {
     ): Result<Iterator<String>> {
         val path = binaryName
 
-        val ret: Iterator<String> = when {
-            cwd != null && path.hasSeparator() ->
-                WhichFindIterator.newCwd(path, cwd, sys, nonfatalErrorHandler)
+        val ret: Iterator<String> =
+            when {
+                cwd != null && path.hasSeparator() ->
+                    WhichFindIterator.newCwd(path, cwd, sys, nonfatalErrorHandler)
 
-            else -> {
-                // Search binary in PATHs (defined in environment variable).
-                val pathsValue = paths
-                    ?: return kotlin.Result.failure(Error.CannotGetCurrentDirAndPathListEmpty)
-                val splitPaths = sys.envSplitPaths(pathsValue)
-                if (splitPaths.isEmpty()) {
-                    return kotlin.Result.failure(Error.CannotGetCurrentDirAndPathListEmpty)
+                else -> {
+                    // Search binary in PATHs (defined in environment variable).
+                    val pathsValue =
+                        paths
+                            ?: return kotlin.Result.failure(Error.CannotGetCurrentDirAndPathListEmpty)
+                    val splitPaths = sys.envSplitPaths(pathsValue)
+                    if (splitPaths.isEmpty()) {
+                        return kotlin.Result.failure(Error.CannotGetCurrentDirAndPathListEmpty)
+                    }
+                    WhichFindIterator.newPaths(path, splitPaths, sys, nonfatalErrorHandler)
                 }
-                WhichFindIterator.newPaths(path, splitPaths, sys, nonfatalErrorHandler)
             }
-        }
         return kotlin.Result.success(ret)
     }
 
@@ -55,7 +58,6 @@ private class WhichFindIterator private constructor(
     private val paths: PathsIter,
     private val nonfatalErrorHandler: NonFatalErrorHandler,
 ) : Iterator<String> {
-
     private var pending: String? = null
     private var fetched: Boolean = false
 
@@ -93,10 +95,11 @@ private class WhichFindIterator private constructor(
             nonfatalErrorHandler: NonFatalErrorHandler,
         ): WhichFindIterator {
             val pathExtensions = if (sys.isWindows()) sys.envWindowsPathExt() else emptyList()
-            val pathsIter = PathsIter(
-                paths = listOf(binaryName.toAbsolute(cwd)).iterator(),
-                pathExtensions = pathExtensions,
-            )
+            val pathsIter =
+                PathsIter(
+                    paths = listOf(binaryName.toAbsolute(cwd)).iterator(),
+                    pathExtensions = pathExtensions,
+                )
             return WhichFindIterator(sys, pathsIter, nonfatalErrorHandler)
         }
 
@@ -108,10 +111,11 @@ private class WhichFindIterator private constructor(
         ): WhichFindIterator {
             val pathExtensions = if (sys.isWindows()) sys.envWindowsPathExt() else emptyList()
             val expanded = paths.map { p -> pathJoin(tildeExpansion(sys, p), binaryName) }
-            val pathsIter = PathsIter(
-                paths = expanded.iterator(),
-                pathExtensions = pathExtensions,
-            )
+            val pathsIter =
+                PathsIter(
+                    paths = expanded.iterator(),
+                    pathExtensions = pathExtensions,
+                )
             return WhichFindIterator(sys, pathsIter, nonfatalErrorHandler)
         }
     }
@@ -121,7 +125,6 @@ private class PathsIter(
     private val paths: Iterator<String>,
     private val pathExtensions: List<String>,
 ) : Iterator<String> {
-
     private var currentPathWithIndex: Pair<String, Int>? = null
     private var pending: String? = null
     private var fetched: Boolean = false
@@ -210,7 +213,6 @@ private class WhichFindRegexIter private constructor(
     private val paths: Iterator<String>,
     private val nonfatalErrorHandler: NonFatalErrorHandler,
 ) : Iterator<String> {
-
     private var currentReadDirIter: Iterator<kotlin.Result<SysReadDirEntry>>? = null
     private var pending: String? = null
     private var fetched: Boolean = false
@@ -237,15 +239,16 @@ private class WhichFindRegexIter private constructor(
             if (iter != null) {
                 if (iter.hasNext()) {
                     val entry = iter.next()
-                    val matched = entry.fold(
-                        onSuccess = { path ->
-                            if (re.containsMatchIn(path.fileName())) path.path() else null
-                        },
-                        onFailure = { e ->
-                            nonfatalErrorHandler.handle(NonFatalError.Io(e.toIoError()))
-                            null
-                        },
-                    )
+                    val matched =
+                        entry.fold(
+                            onSuccess = { path ->
+                                if (re.containsMatchIn(path.fileName())) path.path() else null
+                            },
+                            onFailure = { e ->
+                                nonfatalErrorHandler.handle(NonFatalError.Io(e.toIoError()))
+                                null
+                            },
+                        )
                     if (matched != null) return matched
                 } else {
                     currentReadDirIter = null
