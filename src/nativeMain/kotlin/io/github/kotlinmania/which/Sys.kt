@@ -8,7 +8,6 @@ import kotlin.native.HiddenFromObjC
 @OptIn(ExperimentalNativeApi::class)
 @HiddenFromObjC
 actual class RealSys actual constructor() : Sys {
-
     actual override fun isWindows(): Boolean =
         nativeIsWindows()
 
@@ -63,6 +62,7 @@ internal class NativeMetadata(
     private val isSymlink: Boolean,
 ) : SysMetadata {
     override fun isSymlink(): Boolean = isSymlink
+
     override fun isFile(): Boolean = isRegular
 }
 
@@ -71,6 +71,7 @@ internal class NativeDirEntry(
     private val fullPath: String,
 ) : SysReadDirEntry {
     override fun fileName(): String = fileName
+
     override fun path(): String = fullPath
 }
 

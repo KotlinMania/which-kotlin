@@ -10,7 +10,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class RealSysTest {
-
     private lateinit var root: String
 
     @BeforeTest

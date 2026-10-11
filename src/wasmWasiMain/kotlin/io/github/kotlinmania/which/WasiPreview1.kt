@@ -12,28 +12,29 @@ internal object WasiPreview1 {
         return environ().firstOrNull { it.startsWith(prefix) }?.substring(prefix.length)
     }
 
-    private fun environ(): List<String> = withScopedMemoryAllocator { allocator ->
-        val countPtr = allocator.allocate(Int.SIZE_BYTES)
-        val sizePtr = allocator.allocate(Int.SIZE_BYTES)
-        val sizesErrno = environSizesGet(countPtr.address.toInt(), sizePtr.address.toInt())
-        if (sizesErrno != WASI_ERRNO_SUCCESS) return@withScopedMemoryAllocator emptyList()
+    private fun environ(): List<String> =
+        withScopedMemoryAllocator { allocator ->
+            val countPtr = allocator.allocate(Int.SIZE_BYTES)
+            val sizePtr = allocator.allocate(Int.SIZE_BYTES)
+            val sizesErrno = environSizesGet(countPtr.address.toInt(), sizePtr.address.toInt())
+            if (sizesErrno != WASI_ERRNO_SUCCESS) return@withScopedMemoryAllocator emptyList()
 
-        val count = countPtr.loadInt()
-        val bufferSize = sizePtr.loadInt()
-        if (count <= 0 || bufferSize <= 0) return@withScopedMemoryAllocator emptyList()
+            val count = countPtr.loadInt()
+            val bufferSize = sizePtr.loadInt()
+            if (count <= 0 || bufferSize <= 0) return@withScopedMemoryAllocator emptyList()
 
-        val environPtr = allocator.allocate(count * Int.SIZE_BYTES)
-        val bufferPtr = allocator.allocate(bufferSize)
-        val getErrno = environGet(environPtr.address.toInt(), bufferPtr.address.toInt())
-        if (getErrno != WASI_ERRNO_SUCCESS) return@withScopedMemoryAllocator emptyList()
+            val environPtr = allocator.allocate(count * Int.SIZE_BYTES)
+            val bufferPtr = allocator.allocate(bufferSize)
+            val getErrno = environGet(environPtr.address.toInt(), bufferPtr.address.toInt())
+            if (getErrno != WASI_ERRNO_SUCCESS) return@withScopedMemoryAllocator emptyList()
 
-        buildList(count) {
-            repeat(count) { index ->
-                val entryPtr = Pointer((environPtr + index * Int.SIZE_BYTES).loadInt().toUInt())
-                add(entryPtr.readNullTerminatedString())
+            buildList(count) {
+                repeat(count) { index ->
+                    val entryPtr = Pointer((environPtr + index * Int.SIZE_BYTES).loadInt().toUInt())
+                    add(entryPtr.readNullTerminatedString())
+                }
             }
         }
-    }
 }
 
 private fun Pointer.readNullTerminatedString(): String {

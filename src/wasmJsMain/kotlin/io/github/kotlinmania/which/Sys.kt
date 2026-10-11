@@ -3,7 +3,6 @@
 package io.github.kotlinmania.which
 
 actual class RealSys actual constructor() : Sys {
-
     actual override fun isWindows(): Boolean = jsPlatform() == "win32"
 
     actual override fun currentDir(): Result<String> = runCatching { jsCwd() }
@@ -19,36 +18,43 @@ actual class RealSys actual constructor() : Sys {
 
     actual override fun envPathExt(): String? = jsEnvVar("PATHEXT")?.takeIf { it.isNotEmpty() }
 
-    actual override fun metadata(path: String): Result<SysMetadata> = runCatching {
-        WasmJsMetadata(
-            isRegular = jsStatIsFile(path),
-            isSymlink = false,
-        ) as SysMetadata
-    }.recoverCatching { e -> throw IoError("stat($path): ${e.message ?: e}", e) }
+    actual override fun metadata(path: String): Result<SysMetadata> =
+        runCatching {
+            WasmJsMetadata(
+                isRegular = jsStatIsFile(path),
+                isSymlink = false,
+            ) as SysMetadata
+        }.recoverCatching { e -> throw IoError("stat($path): ${e.message ?: e}", e) }
 
-    actual override fun symlinkMetadata(path: String): Result<SysMetadata> = runCatching {
-        WasmJsMetadata(
-            isRegular = jsLstatIsFile(path),
-            isSymlink = jsLstatIsSymlink(path),
-        ) as SysMetadata
-    }.recoverCatching { e -> throw IoError("lstat($path): ${e.message ?: e}", e) }
+    actual override fun symlinkMetadata(path: String): Result<SysMetadata> =
+        runCatching {
+            WasmJsMetadata(
+                isRegular = jsLstatIsFile(path),
+                isSymlink = jsLstatIsSymlink(path),
+            ) as SysMetadata
+        }.recoverCatching { e -> throw IoError("lstat($path): ${e.message ?: e}", e) }
 
-    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> = runCatching {
-        val joined = jsReadDir(path)
-        if (joined.isEmpty()) {
-            emptyList<Result<SysReadDirEntry>>().iterator()
-        } else {
-            joined.split('\u0000').filter { it.isNotEmpty() }.map { name ->
-                Result.success<SysReadDirEntry>(
-                    WasmJsDirEntry(name, pathJoin(path, name)),
-                )
-            }.iterator()
+    actual override fun readDir(path: String): Result<Iterator<Result<SysReadDirEntry>>> =
+        runCatching {
+            val joined = jsReadDir(path)
+            if (joined.isEmpty()) {
+                emptyList<Result<SysReadDirEntry>>().iterator()
+            } else {
+                joined
+                    .split('\u0000')
+                    .filter { it.isNotEmpty() }
+                    .map { name ->
+                        Result.success<SysReadDirEntry>(
+                            WasmJsDirEntry(name, pathJoin(path, name)),
+                        )
+                    }.iterator()
+            }
+        }.recoverCatching { e -> throw IoError("readDir($path): ${e.message ?: e}", e) }
+
+    actual override fun isValidExecutable(path: String): Result<Boolean> =
+        runCatching {
+            if (isWindows()) jsAccessExists(path) else jsAccessExecutable(path)
         }
-    }.recoverCatching { e -> throw IoError("readDir($path): ${e.message ?: e}", e) }
-
-    actual override fun isValidExecutable(path: String): Result<Boolean> = runCatching {
-        if (isWindows()) jsAccessExists(path) else jsAccessExecutable(path)
-    }
 }
 
 // Webpack's static analyzer would otherwise see literal `require('fs')` / `require('os')`
@@ -97,6 +103,7 @@ private class WasmJsMetadata(
     private val isSymlink: Boolean,
 ) : SysMetadata {
     override fun isSymlink(): Boolean = isSymlink
+
     override fun isFile(): Boolean = isRegular
 }
 
@@ -105,5 +112,6 @@ private class WasmJsDirEntry(
     private val fullPath: String,
 ) : SysReadDirEntry {
     override fun fileName(): String = fileName
+
     override fun path(): String = fullPath
 }

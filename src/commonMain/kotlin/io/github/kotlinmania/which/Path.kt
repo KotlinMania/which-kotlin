@@ -16,7 +16,9 @@ import kotlin.native.HiddenFromObjC
  * want the type system to enforce the need for a path that exists and points
  * to a binary that is executable.
  */
-class Path internal constructor(internal val inner: String) {
+class Path internal constructor(
+    internal val inner: String,
+) {
     /** Returns the underlying path string. */
     fun asPath(): String = inner
 
@@ -49,6 +51,7 @@ class Path internal constructor(internal val inner: String) {
             whichAll(binaryName).map { iter ->
                 object : Iterator<Path> {
                     override fun hasNext(): Boolean = iter.hasNext()
+
                     override fun next(): Path = Path(iter.next())
                 }
             }
@@ -76,6 +79,7 @@ class Path internal constructor(internal val inner: String) {
             whichInAll(binaryName, paths, cwd).map { iter ->
                 object : Iterator<Path> {
                     override fun hasNext(): Boolean = iter.hasNext()
+
                     override fun next(): Path = Path(iter.next())
                 }
             }

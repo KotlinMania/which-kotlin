@@ -13,7 +13,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class RealSysTest {
-
     private lateinit var root: Path
     private lateinit var rootPath: String
 
@@ -50,10 +49,13 @@ class RealSysTest {
         val metadata = sys.metadata(tool.toString()).getOrThrow()
         assertTrue(metadata.isFile())
 
-        val entries = sys.readDir(bin.toString()).getOrThrow()
-            .asSequence()
-            .map { it.getOrThrow() }
-            .toList()
+        val entries =
+            sys
+                .readDir(bin.toString())
+                .getOrThrow()
+                .asSequence()
+                .map { it.getOrThrow() }
+                .toList()
 
         val entry = entries.singleOrNull { it.fileName() == "tool" }
         assertNotNull(entry)

@@ -17,23 +17,24 @@ private fun isExecutable(
     sys: Sys,
     path: String,
     nonfatalErrorHandler: NonFatalErrorHandler,
-): Boolean {
-    return if (sys.isWindows() && pathExtension(path) != null) {
+): Boolean =
+    if (sys.isWindows() && pathExtension(path) != null) {
         true
     } else {
-        sys.isValidExecutable(path)
+        sys
+            .isValidExecutable(path)
             .onFailure { e -> nonfatalErrorHandler.handle(NonFatalError.Io(e.asIoError())) }
             .getOrDefault(false)
     }
-}
 
 private fun exists(
     sys: Sys,
     path: String,
     nonfatalErrorHandler: NonFatalErrorHandler,
-): Boolean {
-    return if (sys.isWindows()) {
-        sys.symlinkMetadata(path)
+): Boolean =
+    if (sys.isWindows()) {
+        sys
+            .symlinkMetadata(path)
             .map { metadata -> metadata.isFile() || metadata.isSymlink() }
             .onFailure { e -> nonfatalErrorHandler.handle(NonFatalError.Io(e.asIoError())) }
             .getOrDefault(false)
@@ -47,7 +48,6 @@ private fun exists(
             },
         )
     }
-}
 
 private fun Throwable.asIoError(): IoError =
     this as? IoError ?: IoError(message ?: this::class.simpleName.orEmpty(), this)

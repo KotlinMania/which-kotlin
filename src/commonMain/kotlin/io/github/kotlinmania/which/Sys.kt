@@ -105,14 +105,23 @@ interface Sys {
 @HiddenFromObjC
 expect class RealSys() : Sys {
     override fun isWindows(): Boolean
+
     override fun currentDir(): kotlin.Result<String>
+
     override fun homeDir(): String?
+
     override fun envSplitPaths(paths: String): List<String>
+
     override fun envPath(): String?
+
     override fun envPathExt(): String?
+
     override fun metadata(path: String): kotlin.Result<SysMetadata>
+
     override fun symlinkMetadata(path: String): kotlin.Result<SysMetadata>
+
     override fun readDir(path: String): kotlin.Result<Iterator<kotlin.Result<SysReadDirEntry>>>
+
     override fun isValidExecutable(path: String): kotlin.Result<Boolean>
 }
 
