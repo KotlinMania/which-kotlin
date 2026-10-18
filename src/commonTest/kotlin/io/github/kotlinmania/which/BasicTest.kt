@@ -1,4 +1,4 @@
-// port-lint: source tests/basic.rs
+// port-lint: tests tests/basic.rs
 package io.github.kotlinmania.which
 
 import kotlin.test.Test
@@ -240,5 +240,37 @@ class BasicTest {
         val config = WhichConfig.newWithSys(sys).binaryName("exec")
         val result = config.firstResult().getOrThrow()
         assertEquals("/home/user/sub/exec", result)
+    }
+
+    @Test
+    fun testWhichReInWithMatches() {
+        val sys = InMemorySys()
+        sys.setEnvVar("PATH", "/sub/dir1/:/sub/dir2/")
+        sys.writeExecutable("/sub/dir1/bin_0")
+        sys.writeExecutable("/sub/dir2/bin_1")
+        sys.writeExecutable("/sub/dir2/other")
+        val re = Regex("""bin_\d""")
+        val result =
+            Finder(sys)
+                .findRe(re, "/sub/dir1/:/sub/dir2/", Noop)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+        assertEquals(listOf("/sub/dir1/bin_0", "/sub/dir2/bin_1"), result)
+    }
+
+    @Test
+    fun testWhichReInWithoutMatches() {
+        val sys = InMemorySys()
+        sys.setEnvVar("PATH", "/sub/dir1/:/sub/dir2/")
+        sys.writeExecutable("/sub/dir1/bin_0")
+        val re = Regex("""bi[^n]""")
+        val result =
+            Finder(sys)
+                .findRe(re, "/sub/dir1/:/sub/dir2/", Noop)
+                .getOrThrow()
+                .asSequence()
+                .toList()
+        assertEquals(emptyList(), result)
     }
 }

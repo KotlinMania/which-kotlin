@@ -1,9 +1,4 @@
-// port-lint: source lib.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package io.github.kotlinmania.which
-
-import kotlin.native.HiddenFromObjC
 
 /**
  * An owned, immutable wrapper around a path string containing the _canonical_
@@ -39,7 +34,6 @@ class CanonicalPath internal constructor(
          *
          * This calls [which] and maps the result into a [CanonicalPath].
          */
-        @HiddenFromObjC
         fun new(binaryName: String): Result<CanonicalPath> {
             val sys: Sys = RealSys()
             return which(binaryName)
@@ -52,7 +46,6 @@ class CanonicalPath internal constructor(
          *
          * This calls [whichAll] and maps the results into [CanonicalPath]s.
          */
-        @HiddenFromObjC
         fun all(binaryName: String): Result<Iterator<Result<CanonicalPath>>> {
             val sys: Sys = RealSys()
             return whichAll(binaryName).map { iter ->
@@ -73,7 +66,6 @@ class CanonicalPath internal constructor(
          *
          * This calls [whichIn] and maps the result into a [CanonicalPath].
          */
-        @HiddenFromObjC
         fun newIn(binaryName: String, paths: String?, cwd: String): Result<CanonicalPath> {
             val sys: Sys = RealSys()
             return whichIn(binaryName, paths, cwd)
@@ -87,7 +79,6 @@ class CanonicalPath internal constructor(
          *
          * This calls [whichInAll] and maps the results into [CanonicalPath]s.
          */
-        @HiddenFromObjC
         fun allIn(binaryName: String, paths: String?, cwd: String): Result<Iterator<Result<CanonicalPath>>> {
             val sys: Sys = RealSys()
             return whichInAll(binaryName, paths, cwd).map { iter ->

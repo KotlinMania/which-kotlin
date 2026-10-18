@@ -1,4 +1,4 @@
-// port-lint: source helper.rs
+// port-lint: tests helper.rs
 package io.github.kotlinmania.which
 
 import kotlin.test.Test

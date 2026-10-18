@@ -1,12 +1,8 @@
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package io.github.kotlinmania.which
 
 import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.HiddenFromObjC
 
 @OptIn(ExperimentalNativeApi::class)
-@HiddenFromObjC
 actual class RealSys actual constructor() : Sys {
     actual override fun isWindows(): Boolean =
         nativeIsWindows()

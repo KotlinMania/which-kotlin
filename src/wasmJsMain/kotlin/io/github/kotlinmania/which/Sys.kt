@@ -68,16 +68,16 @@ actual class RealSys actual constructor() : Sys {
 // can't share Kotlin-side helpers — each is compiled into its own JS function.
 // See workspace CLAUDE.md "Hiding require('fs') from webpack".
 
-@JsFun("() => process.platform")
+@JsFun("() => { try { return (typeof process !== 'undefined' && process.platform) ? process.platform : ''; } catch (e) { return ''; } }")
 private external fun jsPlatform(): String
 
-@JsFun("() => process.cwd()")
+@JsFun("() => { try { return (typeof process !== 'undefined' && typeof process.cwd === 'function') ? process.cwd() : ''; } catch (e) { return ''; } }")
 private external fun jsCwd(): String
 
 @JsFun("() => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('os').homedir() || ''; } var r = eval('typeof require === \"function\" ? require : null'); return r ? (r('os').homedir() || '') : ''; } catch (e) { return ''; } }")
 private external fun jsHomeDir(): String
 
-@JsFun("(name) => { const v = process.env[name]; return v === undefined ? null : v; }")
+@JsFun("(name) => { try { if (typeof process === 'undefined' || !process.env) return null; const v = process.env[name]; return v === undefined ? null : v; } catch (e) { return null; } }")
 private external fun jsEnvVar(name: String): String?
 
 @JsFun("(p) => { try { if (typeof process !== 'undefined' && typeof process.getBuiltinModule === 'function') { return process.getBuiltinModule('fs').statSync(p).isFile(); } var r = eval('typeof require === \"function\" ? require : null'); return r ? r('fs').statSync(p).isFile() : false; } catch (e) { return false; } }")

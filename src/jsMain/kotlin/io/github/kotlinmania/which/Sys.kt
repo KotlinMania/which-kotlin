@@ -95,7 +95,10 @@ private fun nodeOs(): dynamic =
         "(function(){ try { var r = eval('typeof require === \"function\" ? require : null'); return r ? r('os') : null; } catch (e) { return null; } })()",
     )
 
-private fun nodeProcess(): dynamic = js("process")
+private fun nodeProcess(): dynamic =
+    js(
+        "(function(){ try { return typeof process !== 'undefined' ? process : { platform: '', cwd: function() { return ''; }, env: {} }; } catch (e) { return { platform: '', cwd: function() { return ''; }, env: {} }; } })()",
+    )
 
 private fun undefined(): dynamic = js("undefined")
 

@@ -1,4 +1,3 @@
-// port-lint: source lib.rs
 package io.github.kotlinmania.which
 
 internal sealed class CwdOption {
