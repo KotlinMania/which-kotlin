@@ -19,8 +19,9 @@ class Finder(
 
         val ret: Iterator<String> =
             when {
-                cwd != null && path.hasSeparator() ->
+                cwd != null && path.hasSeparator() -> {
                     WhichFindIterator.newCwd(path, cwd, sys, nonfatalErrorHandler)
+                }
 
                 else -> {
                     // Search binary in PATHs (defined in environment variable).

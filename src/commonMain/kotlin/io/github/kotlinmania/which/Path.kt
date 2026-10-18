@@ -45,7 +45,10 @@ class Path internal constructor(
                 object : Iterator<Path> {
                     override fun hasNext(): Boolean = iter.hasNext()
 
-                    override fun next(): Path = Path(iter.next())
+                    override fun next(): Path {
+                        if (!hasNext()) throw NoSuchElementException()
+                        return Path(iter.next())
+                    }
                 }
             }
 
@@ -71,7 +74,10 @@ class Path internal constructor(
                 object : Iterator<Path> {
                     override fun hasNext(): Boolean = iter.hasNext()
 
-                    override fun next(): Path = Path(iter.next())
+                    override fun next(): Path {
+                        if (!hasNext()) throw NoSuchElementException()
+                        return Path(iter.next())
+                    }
                 }
             }
     }

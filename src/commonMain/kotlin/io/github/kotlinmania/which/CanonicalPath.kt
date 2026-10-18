@@ -53,6 +53,7 @@ class CanonicalPath internal constructor(
                     override fun hasNext(): Boolean = iter.hasNext()
 
                     override fun next(): Result<CanonicalPath> {
+                        if (!hasNext()) throw NoSuchElementException()
                         val path = iter.next()
                         return sys.canonicalize(path).map { CanonicalPath(it) }
                     }
@@ -86,6 +87,7 @@ class CanonicalPath internal constructor(
                     override fun hasNext(): Boolean = iter.hasNext()
 
                     override fun next(): Result<CanonicalPath> {
+                        if (!hasNext()) throw NoSuchElementException()
                         val path = iter.next()
                         return sys.canonicalize(path).map { CanonicalPath(it) }
                     }
