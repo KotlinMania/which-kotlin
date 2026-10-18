@@ -86,7 +86,7 @@ The documentation is [available online](https://docs.rs/which/).
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:which-kotlin:0.1.3")
+    implementation("io.github.kotlinmania:which-kotlin:0.1.4")
 }
 ```
 
