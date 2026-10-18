@@ -1,9 +1,4 @@
-// port-lint: source lib.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package io.github.kotlinmania.which
-
-import kotlin.native.HiddenFromObjC
 
 /**
  * An owned, immutable wrapper around a path string containing the path of an
@@ -37,7 +32,6 @@ class Path internal constructor(
          *
          * This calls [which] and maps the result into a [Path].
          */
-        @HiddenFromObjC
         fun new(binaryName: String): Result<Path> =
             which(binaryName).map { Path(it) }
 
@@ -46,7 +40,6 @@ class Path internal constructor(
          *
          * This calls [whichAll] and maps the results into [Path]s.
          */
-        @HiddenFromObjC
         fun all(binaryName: String): Result<Iterator<Path>> =
             whichAll(binaryName).map { iter ->
                 object : Iterator<Path> {
@@ -63,7 +56,6 @@ class Path internal constructor(
          *
          * This calls [whichIn] and maps the result into a [Path].
          */
-        @HiddenFromObjC
         fun newIn(binaryName: String, paths: String?, cwd: String): Result<Path> =
             whichIn(binaryName, paths, cwd).map { Path(it) }
 
@@ -74,7 +66,6 @@ class Path internal constructor(
          *
          * This calls [whichInAll] and maps the results into [Path]s.
          */
-        @HiddenFromObjC
         fun allIn(binaryName: String, paths: String?, cwd: String): Result<Iterator<Path>> =
             whichInAll(binaryName, paths, cwd).map { iter ->
                 object : Iterator<Path> {

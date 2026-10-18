@@ -1,9 +1,6 @@
 // port-lint: source sys.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
-
-import kotlin.native.HiddenFromObjC
 
 /** A directory entry surfaced by [Sys.readDir]. */
 interface SysReadDirEntry {
@@ -34,7 +31,6 @@ interface SysMetadata {
  * implementation of [Sys] that mocks out the calls that would normally hit the
  * operating system, and passing it to `WhichConfig.newWithSys`.
  */
-@HiddenFromObjC
 interface Sys {
     /**
      * Check if the current platform is Windows.
@@ -102,7 +98,6 @@ interface Sys {
  * In environments without a filesystem (browser JS / Wasm-JS) the host-touching
  * methods return failures and callers are expected to plug in a custom [Sys].
  */
-@HiddenFromObjC
 expect class RealSys() : Sys {
     override fun isWindows(): Boolean
 

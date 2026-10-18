@@ -1,11 +1,7 @@
 // port-lint: source checker.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
 
 package io.github.kotlinmania.which
 
-import kotlin.native.HiddenFromObjC
-
-@HiddenFromObjC
 fun isValid(
     sys: Sys,
     path: String,

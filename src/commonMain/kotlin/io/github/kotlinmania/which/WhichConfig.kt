@@ -1,12 +1,6 @@
-// port-lint: source lib.rs
-@file:OptIn(kotlin.experimental.ExperimentalObjCRefinement::class)
-
 package io.github.kotlinmania.which
 
-import kotlin.native.HiddenFromObjC
-
 /** A wrapper containing all functionality in this crate. */
-@HiddenFromObjC
 class WhichConfig(
     internal val sys: Sys,
 ) {
